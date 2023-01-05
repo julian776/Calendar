@@ -15,7 +15,7 @@ export async function findFreeBusyByUsersOnMainCalendar(
   fromDate: Date | string,
   toDate: Date | string,
   range: string,
-  timezoneToParseResponse='UTC'
+  timezoneToParseResponse = "UTC"
 ) {
   const events = await findEventsUsers(auth, emailUser, fromDate, toDate);
 
@@ -25,87 +25,86 @@ export async function findFreeBusyByUsersOnMainCalendar(
 
   const { startAvaiableRange, closeAvaiableRange } = getRanges(range);
 
-  let preEvent
-  const freeSpaces = events.reduce(( acc:freeSpace[], currEvent, index)=> {
+  let preEvent;
+  const freeSpaces = events.reduce((acc: freeSpace[], currEvent, index) => {
+    console.log(acc);
+
+    const checkEvent = () => {
+      const startPreEvent = preEvent.start.dateTime;
+      const endPreEvent = preEvent.end.dateTime;
+
+      diff = differenceInMilliseconds(new Date(endPreEvent), new Date(start));
+
+      preEvent = currEvent;
+      return diff * -1 > 600000
+        ? [...acc, { start: endPreEvent, end: start }]
+        : acc;
+    };
+
     const checkLastEvent = () => {
       diff = differenceInMilliseconds(
         new Date(end),
         rangeAsSpecificDate(closeAvaiableRange, end)
       );
-      preEvent = currEvent
-      return diff*-1 > 600000
+      preEvent = currEvent;
+      return diff * -1 > 600000
         ? { start: end, end: rangeAsSpecificDate(closeAvaiableRange, end) }
         : false;
-    }
-    
+    };
+
+    const isLastEvent = index + 1 === events.length;
+    const isFirstEvent = acc.length === 0;
     let diff = 0;
     const start = currEvent.start.dateTime;
     const end = currEvent.end.dateTime;
-    if (acc.length === 0) {
+    if (isFirstEvent) {
       diff = differenceInMilliseconds(
         rangeAsSpecificDate(startAvaiableRange, start),
         new Date(start)
-        );
-        preEvent = currEvent
-        const accEvents = diff*-1 > 600000
-        ? [...acc, { start: rangeAsSpecificDate(startAvaiableRange, start), end: start }]
-        : false;
+      );
+      preEvent = currEvent;
+      const accEvents =
+        diff * -1 > 600000
+          ? [
+              ...acc,
+              {
+                start: rangeAsSpecificDate(startAvaiableRange, start),
+                end: start,
+              },
+            ]
+          : false;
 
-        if (index+1 === events.length) {
-          const res = checkLastEvent()
-          if (res && accEvents) return [...accEvents, res]
-        }
+      if (isLastEvent) {
+        const res = checkLastEvent();
+        if (res && accEvents) accEvents.push(res);
       }
-
-    if (index+1 === events.length) {
-      const res = checkLastEvent()
-      if (res) return [...acc, res]
+      return accEvents ? [...acc, ...accEvents] : acc;
     }
 
-    const startPreEvent = preEvent.start.dateTime;
-    const endPreEvent = preEvent.end.dateTime;
+    if (isLastEvent) {
+      const accEvents = checkEvent();
 
-    diff = differenceInMilliseconds(endPreEvent, new Date(start))
+      const res = checkLastEvent();
 
-    preEvent = currEvent
-    return diff*-1 > 600000
-        ? [...acc, { start: endPreEvent, end: start }]
-        : false;
-  }, [])
-  return parseFreeSpacesToSpecificTimezone(freeSpaces, '')
-}
-
-async function parseFreeSpacesToSpecificTimezone(freeSpaces: any[], timezone) {
-  return freeSpaces.map(freeSpace => {
-    return {
-      startDate: parseFromTimeZone(freeSpace.start.toString(), { timeZone: 'Europe/Berlin' }),
-      endDate: parseFromTimeZone(freeSpace.end.toString(), { timeZone: 'Europe/Berlin' })
+      if (res) return [...accEvents, res];
     }
-  })
+
+    return checkEvent();
+  }, []);
+
+  return parseFreeSpacesToSpecificTimezone(freeSpaces, timezoneToParseResponse);
 }
 
-async function validateFreeSpace(
-  event,
-  preEvent,
-  events: freeSpace[],
-  startAvaiableRange: string,
-  closeAvaiableRange: string
+async function parseFreeSpacesToSpecificTimezone(
+  freeSpaces: any[],
+  timeZone: string
 ) {
-  let diff = 0;
-  const start = event.start.dateTime;
-  const end = event.end.dateTime;
-  if (events.length === 0) {
-    diff = differenceInMilliseconds(
-      rangeAsSpecificDate(startAvaiableRange, start),
-      start
-    );
-    return diff > 600000
-      ? { start: rangeAsSpecificDate(startAvaiableRange, start), end: start }
-      : false;
-  }
-
-  const startPreEvent = preEvent.start.dateTime;
-  const endPreEvent = preEvent.end.dateTime;
+  return freeSpaces.map((freeSpace) => {
+    return {
+      startDate: parseFromTimeZone(freeSpace.start.toString(), { timeZone }),
+      endDate: parseFromTimeZone(freeSpace.end.toString(), { timeZone }),
+    };
+  });
 }
 
 function getRanges(range: string) {
@@ -130,7 +129,7 @@ function rangeAsSpecificDate(range, date: Date | string) {
   let newDate = new Date(date);
   newDate = setHours(newDate, range.hours);
   newDate = setMinutes(newDate, range.minutes);
-  
+
   return new Date(newDate);
 }
 
@@ -153,7 +152,7 @@ export async function findFreeBusyByUsers(
 
   if (!res) {
     console.log("Not free space");
-    return false
+    return false;
   }
-  return res
+  return res;
 }

@@ -33,7 +33,11 @@ async function authorize() {
 }
 
 export async function getAuthUser(userCredentials: any) {
-  const oauth2Client = new google.auth.OAuth2(/* App Credentials */);
+  const oauth2Client = new google.auth.OAuth2(
+    "224440623840-lu2fev9teuakrpj5up8iam02hbhcftum.apps.googleusercontent.com",
+    "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",
+    "http://localhost:3000"
+  );
   
   oauth2Client.setCredentials(userCredentials);
   

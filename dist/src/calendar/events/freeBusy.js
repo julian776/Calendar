@@ -14,7 +14,7 @@ const date_fns_1 = require("date-fns");
 const date_fns_timezone_1 = require("date-fns-timezone");
 const find_1 = require("./find");
 const { google } = require("googleapis");
-function findFreeBusyByUsersOnMainCalendar(auth, emailUser, fromDate, toDate, range, timezoneToParseResponse = 'UTC') {
+function findFreeBusyByUsersOnMainCalendar(auth, emailUser, fromDate, toDate, range, timezoneToParseResponse = "UTC") {
     return __awaiter(this, void 0, void 0, function* () {
         const events = yield (0, find_1.findEventsUsers)(auth, emailUser, fromDate, toDate);
         if (typeof events === "boolean") {
@@ -23,6 +23,16 @@ function findFreeBusyByUsersOnMainCalendar(auth, emailUser, fromDate, toDate, ra
         const { startAvaiableRange, closeAvaiableRange } = getRanges(range);
         let preEvent;
         const freeSpaces = events.reduce((acc, currEvent, index) => {
+            console.log(acc);
+            const checkEvent = () => {
+                const startPreEvent = preEvent.start.dateTime;
+                const endPreEvent = preEvent.end.dateTime;
+                diff = (0, date_fns_1.differenceInMilliseconds)(new Date(endPreEvent), new Date(start));
+                preEvent = currEvent;
+                return diff * -1 > 600000
+                    ? [...acc, { start: endPreEvent, end: start }]
+                    : acc;
+            };
             const checkLastEvent = () => {
                 diff = (0, date_fns_1.differenceInMilliseconds)(new Date(end), rangeAsSpecificDate(closeAvaiableRange, end));
                 preEvent = currEvent;
@@ -30,61 +40,50 @@ function findFreeBusyByUsersOnMainCalendar(auth, emailUser, fromDate, toDate, ra
                     ? { start: end, end: rangeAsSpecificDate(closeAvaiableRange, end) }
                     : false;
             };
+            const isLastEvent = index + 1 === events.length;
+            const isFirstEvent = acc.length === 0;
             let diff = 0;
             const start = currEvent.start.dateTime;
             const end = currEvent.end.dateTime;
-            if (acc.length === 0) {
+            if (isFirstEvent) {
                 diff = (0, date_fns_1.differenceInMilliseconds)(rangeAsSpecificDate(startAvaiableRange, start), new Date(start));
                 preEvent = currEvent;
                 const accEvents = diff * -1 > 600000
-                    ? [...acc, { start: rangeAsSpecificDate(startAvaiableRange, start), end: start }]
+                    ? [
+                        ...acc,
+                        {
+                            start: rangeAsSpecificDate(startAvaiableRange, start),
+                            end: start,
+                        },
+                    ]
                     : false;
-                if (index + 1 === events.length) {
+                if (isLastEvent) {
                     const res = checkLastEvent();
                     if (res && accEvents)
-                        return [...accEvents, res];
+                        accEvents.push(res);
                 }
+                return accEvents ? [...acc, ...accEvents] : acc;
             }
-            if (index + 1 === events.length) {
+            if (isLastEvent) {
+                const accEvents = checkEvent();
                 const res = checkLastEvent();
                 if (res)
-                    return [...acc, res];
+                    return [...accEvents, res];
             }
-            const startPreEvent = preEvent.start.dateTime;
-            const endPreEvent = preEvent.end.dateTime;
-            diff = (0, date_fns_1.differenceInMilliseconds)(endPreEvent, new Date(start));
-            preEvent = currEvent;
-            return diff * -1 > 600000
-                ? [...acc, { start: endPreEvent, end: start }]
-                : false;
+            return checkEvent();
         }, []);
-        return parseFreeSpacesToSpecificTimezone(freeSpaces, '');
+        return parseFreeSpacesToSpecificTimezone(freeSpaces, timezoneToParseResponse);
     });
 }
 exports.findFreeBusyByUsersOnMainCalendar = findFreeBusyByUsersOnMainCalendar;
-function parseFreeSpacesToSpecificTimezone(freeSpaces, timezone) {
+function parseFreeSpacesToSpecificTimezone(freeSpaces, timeZone) {
     return __awaiter(this, void 0, void 0, function* () {
-        return freeSpaces.map(freeSpace => {
+        return freeSpaces.map((freeSpace) => {
             return {
-                startDate: (0, date_fns_timezone_1.parseFromTimeZone)(freeSpace.start.toString(), { timeZone: 'Europe/Berlin' }),
-                endDate: (0, date_fns_timezone_1.parseFromTimeZone)(freeSpace.end.toString(), { timeZone: 'Europe/Berlin' })
+                startDate: (0, date_fns_timezone_1.parseFromTimeZone)(freeSpace.start.toString(), { timeZone }),
+                endDate: (0, date_fns_timezone_1.parseFromTimeZone)(freeSpace.end.toString(), { timeZone }),
             };
         });
-    });
-}
-function validateFreeSpace(event, preEvent, events, startAvaiableRange, closeAvaiableRange) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let diff = 0;
-        const start = event.start.dateTime;
-        const end = event.end.dateTime;
-        if (events.length === 0) {
-            diff = (0, date_fns_1.differenceInMilliseconds)(rangeAsSpecificDate(startAvaiableRange, start), start);
-            return diff > 600000
-                ? { start: rangeAsSpecificDate(startAvaiableRange, start), end: start }
-                : false;
-        }
-        const startPreEvent = preEvent.start.dateTime;
-        const endPreEvent = preEvent.end.dateTime;
     });
 }
 function getRanges(range) {

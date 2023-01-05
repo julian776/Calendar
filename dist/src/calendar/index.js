@@ -54,5 +54,5 @@ const freeBusy_1 = require("./events/freeBusy");
         "julian.ricaurte@sofka.com.co",
         "julian.alvarez@sofka.com.co",
         "juliancamiloalvarez77@gmail.com",
-    ], "2023-01-05T10:00:00-05:00", "2023-01-05T16:00:00-05:00", "6:20-18:30"));
+    ], "2023-01-05T07:00:00-05:00", "2023-01-05T16:00:00-05:00", "6:20-18:30"));
 }))();
