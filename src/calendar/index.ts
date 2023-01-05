@@ -9,6 +9,8 @@ import { getAuthUser } from "../auth/auth-user";
 import { findEventsUsers } from "./events/find";
 import { findFreeBusyByUsersOnMainCalendar } from "./events/freeBusy";
 
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+
 // const event = {
 //   summary: "Google I/O 2015",
 //   location: "CASA SOFKITA",
@@ -25,6 +27,7 @@ import { findFreeBusyByUsersOnMainCalendar } from "./events/freeBusy";
 // };
 
 (async () => {
+  dotenv.config()
   const auth = await getAuthUser({
     access_token:
       "ya29.a0AX9GBdUNiYbcN630zQy_qslHx-7H-BHdE41Y-6rUSaHKc31s2do95271rd7ceVFm_cqE8adWGsdPK8KrHoiTx4-EmMs9prIbRUzEt7wbsj66wcCaVG5JRltpJuMVxKqMTArY0Jop-FFGlrM2tHbUXC584T02aCgYKAdMSARMSFQHUCsbCNPA8hSI7b91qJw_9YuYzpg0163",

@@ -47,7 +47,7 @@ function authorize() {
 }
 function getAuthUser(userCredentials) {
     return __awaiter(this, void 0, void 0, function* () {
-        const oauth2Client = new google.auth.OAuth2("224440623840-lu2fev9teuakrpj5up8iam02hbhcftum.apps.googleusercontent.com", "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", "http://localhost:3000");
+        const oauth2Client = new google.auth.OAuth2(process.env.APP_ID, process.env.APP_SECRET, process.env.REDIRECT_URI);
         oauth2Client.setCredentials(userCredentials);
         return oauth2Client;
     });

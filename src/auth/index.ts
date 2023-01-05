@@ -4,16 +4,19 @@ const https = require('https');
 const url = require('url');
 const { google } = require('googleapis');
 
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
+
 /**
  * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI.
  * To get these credentials for your application, visit
  * https://console.cloud.google.com/apis/credentials.
  */
 const oauth2Client = new google.auth.OAuth2(
-    "224440623840-lu2fev9teuakrpj5up8iam02hbhcftum.apps.googleusercontent.com",
-    "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",
-    "http://localhost:3000"
-  );
+  process.env.APP_ID,
+  process.env.APP_SECRET,
+  process.env.REDIRECT_URI
+);
 
 // Access scopes for read-only Drive activity.
 const scopes = [
