@@ -29,3 +29,4 @@ function createEvent(auth, event) {
     });
 }
 exports.createEvent = createEvent;
+//# sourceMappingURL=create.js.map

@@ -1,10 +1,10 @@
 {
-  "name": "calendar",
+  "name": "calendar-wrapper-hibot",
   "version": "1.0.0",
   "description": "",
   "module": "src",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "commonjs",
   "scripts": {
     "build": "tsc",

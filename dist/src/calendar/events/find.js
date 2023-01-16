@@ -40,3 +40,4 @@ function findEventsUsers(auth, emailUsers, fromDate, toDate) {
     });
 }
 exports.findEventsUsers = findEventsUsers;
+//# sourceMappingURL=find.js.map

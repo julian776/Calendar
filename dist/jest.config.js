@@ -4,3 +4,4 @@ const config = {
     verbose: true,
 };
 exports.default = config;
+//# sourceMappingURL=jest.config.js.map

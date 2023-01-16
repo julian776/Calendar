@@ -127,3 +127,4 @@ function findFreeBusyByUsers(auth, emailUser, fromDate, toDate) {
     });
 }
 exports.findFreeBusyByUsers = findFreeBusyByUsers;
+//# sourceMappingURL=freeBusy.js.map

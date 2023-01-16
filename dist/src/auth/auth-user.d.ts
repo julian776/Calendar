@@ -1,1 +1,2 @@
-export declare function botsUserAuth(): Promise<void>;
+export declare function getAuthUser(userCredentials: any): Promise<any>;
+//# sourceMappingURL=auth-user.d.ts.map
